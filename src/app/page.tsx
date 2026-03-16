@@ -459,12 +459,18 @@ function GameBlogView() {
   const isFavorite = favorites.includes(currentGame.id);
 
   const handleDownload = () => {
-    setDownloading(true);
-    // Simulate download
-    setTimeout(() => {
-      setDownloading(false);
+    // If game has a download link, open it in a new tab
+    if (currentGame.downloadLink) {
+      window.open(currentGame.downloadLink, '_blank');
       setDownloaded(true);
-    }, 2000);
+    } else {
+      // No download link available - show message
+      setDownloading(true);
+      setTimeout(() => {
+        setDownloading(false);
+        setDownloaded(true);
+      }, 2000);
+    }
   };
 
   // Get related games (same category, excluding current)

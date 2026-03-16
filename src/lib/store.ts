@@ -35,6 +35,7 @@ interface GameState {
   
   // Games
   games: Game[];
+  gamesLoaded: boolean;
   currentGame: Game | null;
   favorites: string[];
   
@@ -70,13 +71,49 @@ interface GameState {
   addXP: (amount: number) => void;
   levelUp: () => void;
   
-  // Admin Actions
+  // Game Actions
+  setGames: (games: Game[]) => void;
+  fetchGames: () => Promise<void>;
   addGame: (game: Game) => void;
   updateGame: (game: Game) => void;
   deleteGame: (gameId: string) => void;
 }
 
 const initialTransactions: Transaction[] = [];
+
+// Helper to convert database game to frontend format
+function dbGameToGame(dbGame: Record<string, unknown>): Game {
+  return {
+    id: dbGame.id as string,
+    name: dbGame.name as string,
+    slug: dbGame.slug as string,
+    description: (dbGame.description as string) || '',
+    thumbnail: dbGame.thumbnail as string,
+    bannerImage: (dbGame.bannerImage as string) || '',
+    category: dbGame.category as Game['category'],
+    provider: dbGame.provider as string,
+    isFeatured: dbGame.isFeatured as boolean,
+    isNew: dbGame.isNew as boolean,
+    isPopular: dbGame.isPopular as boolean,
+    minBet: dbGame.minBet as number,
+    maxBet: dbGame.maxBet as number,
+    jackpot: dbGame.jackpot as number | undefined,
+    rtp: dbGame.rtp as number | undefined,
+    volatility: dbGame.volatility as 'low' | 'medium' | 'high' | undefined,
+    features: dbGame.features ? JSON.parse(dbGame.features as string) : [],
+    paylines: dbGame.paylines as number | undefined,
+    reels: dbGame.reels as number | undefined,
+    downloadLink: (dbGame.downloadLink as string) || '',
+    gameOverview: (dbGame.gameOverview as string) || '',
+    howToPlay: (dbGame.howToPlay as string) || '',
+    tipsAndStrategies: dbGame.tipsAndStrategies ? JSON.parse(dbGame.tipsAndStrategies as string) : [],
+    gameHistory: (dbGame.gameHistory as string) || '',
+    howToCreateAccount: (dbGame.howToCreateAccount as string) || '',
+    conclusion: (dbGame.conclusion as string) || '',
+    faqs: dbGame.faqs ? JSON.parse(dbGame.faqs as string) : [],
+    howToDownloadAndInstall: (dbGame.howToDownloadAndInstall as string) || '',
+  };
+}
 
 export const useGameStore = create<GameState>()(
   persist(
@@ -85,7 +122,8 @@ export const useGameStore = create<GameState>()(
       user: null,
       isLoggedIn: false,
       isAdmin: false,
-      games: gamesData,
+      games: gamesData, // Start with hardcoded data, will be replaced by DB data
+      gamesLoaded: false,
       currentGame: null,
       favorites: [],
       currentView: 'home',
@@ -214,7 +252,23 @@ export const useGameStore = create<GameState>()(
         };
       }),
       
-      // Admin Actions
+      // Game Actions - fetch from database
+      setGames: (games) => set({ games, gamesLoaded: true }),
+      
+      fetchGames: async () => {
+        try {
+          const response = await fetch('/api/games');
+          const data = await response.json();
+          if (data.games && data.games.length > 0) {
+            const games = data.games.map(dbGameToGame);
+            set({ games, gamesLoaded: true });
+          }
+        } catch (error) {
+          console.error('Error fetching games:', error);
+          // Keep existing games if fetch fails
+        }
+      },
+      
       addGame: (game) => set((state) => ({
         games: [...state.games, game]
       })),
@@ -238,7 +292,7 @@ export const useGameStore = create<GameState>()(
         lastBonusClaim: state.lastBonusClaim,
         canClaimBonus: state.canClaimBonus,
         isAdmin: state.isAdmin,
-        games: state.games
+        // Don't persist games - always fetch from database
       })
     }
   )

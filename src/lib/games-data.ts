@@ -1,10 +1,10 @@
 export interface Game {
   id: string;
   name: string;
-  slug: string;
+  slug?: string;
   description: string;
   thumbnail: string;
-  bannerImage: string;
+  bannerImage?: string;
   category: 'slots' | 'casino' | 'skill' | 'bingo' | 'poker' | 'novoline';
   provider: string;
   isFeatured: boolean;

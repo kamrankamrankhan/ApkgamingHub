@@ -580,3 +580,20 @@ Upload error: Error: Invalid supabaseUrl: Provided URL is malformed.
 ✓ Compiled in 132ms
 ✓ Compiled in 116ms
  GET / 200 in 313ms (compile: 52ms, render: 260ms)
+ GET / 200 in 110ms (compile: 4ms, render: 106ms)
+✓ Compiled in 169ms
+✓ Compiled in 163ms
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Game`.`id`, `main`.`Game`.`name`, `main`.`Game`.`slug`, `main`.`Game`.`description`, `main`.`Game`.`thumbnail`, `main`.`Game`.`bannerImage`, `main`.`Game`.`category`, `main`.`Game`.`provider`, `main`.`Game`.`isFeatured`, `main`.`Game`.`isNew`, `main`.`Game`.`isPopular`, `main`.`Game`.`minBet`, `main`.`Game`.`maxBet`, `main`.`Game`.`jackpot`, `main`.`Game`.`rtp`, `main`.`Game`.`volatility`, `main`.`Game`.`features`, `main`.`Game`.`paylines`, `main`.`Game`.`reels`, `main`.`Game`.`downloadLink`, `main`.`Game`.`createdAt`, `main`.`Game`.`updatedAt` FROM `main`.`Game` WHERE 1=1 ORDER BY `main`.`Game`.`isFeatured` DESC, `main`.`Game`.`isPopular` DESC, `main`.`Game`.`name` ASC LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Game`.`id` FROM `main`.`Game` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+ GET /api/games 200 in 59ms (compile: 40ms, render: 19ms)
+ GET / 200 in 288ms (compile: 51ms, render: 237ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Game`.`id`, `main`.`Game`.`name`, `main`.`Game`.`slug`, `main`.`Game`.`description`, `main`.`Game`.`thumbnail`, `main`.`Game`.`bannerImage`, `main`.`Game`.`category`, `main`.`Game`.`provider`, `main`.`Game`.`isFeatured`, `main`.`Game`.`isNew`, `main`.`Game`.`isPopular`, `main`.`Game`.`minBet`, `main`.`Game`.`maxBet`, `main`.`Game`.`jackpot`, `main`.`Game`.`rtp`, `main`.`Game`.`volatility`, `main`.`Game`.`features`, `main`.`Game`.`paylines`, `main`.`Game`.`reels`, `main`.`Game`.`downloadLink`, `main`.`Game`.`createdAt`, `main`.`Game`.`updatedAt` FROM `main`.`Game` WHERE 1=1 ORDER BY `main`.`Game`.`isFeatured` DESC, `main`.`Game`.`isPopular` DESC, `main`.`Game`.`name` ASC LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Game`.`id` FROM `main`.`Game` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+ GET /api/games 200 in 10ms (compile: 2ms, render: 8ms)
+ GET / 200 in 111ms (compile: 4ms, render: 107ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Game`.`id`, `main`.`Game`.`name`, `main`.`Game`.`slug`, `main`.`Game`.`description`, `main`.`Game`.`thumbnail`, `main`.`Game`.`bannerImage`, `main`.`Game`.`category`, `main`.`Game`.`provider`, `main`.`Game`.`isFeatured`, `main`.`Game`.`isNew`, `main`.`Game`.`isPopular`, `main`.`Game`.`minBet`, `main`.`Game`.`maxBet`, `main`.`Game`.`jackpot`, `main`.`Game`.`rtp`, `main`.`Game`.`volatility`, `main`.`Game`.`features`, `main`.`Game`.`paylines`, `main`.`Game`.`reels`, `main`.`Game`.`downloadLink`, `main`.`Game`.`createdAt`, `main`.`Game`.`updatedAt` FROM `main`.`Game` WHERE 1=1 ORDER BY `main`.`Game`.`isFeatured` DESC, `main`.`Game`.`isPopular` DESC, `main`.`Game`.`name` ASC LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Game`.`id` FROM `main`.`Game` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+ GET /api/games 200 in 11ms (compile: 2ms, render: 9ms)

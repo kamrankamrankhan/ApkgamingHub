@@ -94,7 +94,14 @@ function getGameBlogContent(game: Game) {
 
 // Home View Component
 function HomeView() {
-  const { setCurrentView, setCurrentGame, user, claimDailyBonus, canClaimBonus, games } = useGameStore();
+  const { setCurrentView, setCurrentGame, user, claimDailyBonus, canClaimBonus, games, fetchGames, gamesLoaded } = useGameStore();
+  
+  // Fetch games from database on mount
+  useEffect(() => {
+    if (!gamesLoaded) {
+      fetchGames();
+    }
+  }, [gamesLoaded, fetchGames]);
   
   // Compute featured, popular, and new games from store
   const featuredGames = games.filter(g => g.isFeatured);

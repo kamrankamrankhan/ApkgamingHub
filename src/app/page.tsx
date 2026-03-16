@@ -26,7 +26,8 @@ import { gamesData, gameCategories, featuredGames, popularGames, newGames, Game 
 
 // Game Blog Content Generator
 function getGameBlogContent(game: Game) {
-  const categoryContent: Record<string, { overview: string; howToPlay: string; tips: string[]; history: string }> = {
+  // Default content based on category (fallback)
+  const defaultContent: Record<string, { overview: string; howToPlay: string; tips: string[]; history: string }> = {
     slots: {
       overview: `${game.name} is an exciting slot machine game that brings the thrill of Vegas right to your screen. With ${game.reels || 5} reels and ${game.paylines || 'multiple'} paylines, this game offers endless entertainment and the chance to win big!`,
       howToPlay: `Playing ${game.name} is simple and straightforward. First, set your bet amount using the controls at the bottom of the screen. You can adjust your bet from ${game.minBet} to ${game.maxBet.toLocaleString()} Twists. Once you've set your bet, hit the spin button and watch the reels come to life! Match symbols across the paylines to win prizes.`,
@@ -89,7 +90,15 @@ function getGameBlogContent(game: Game) {
     }
   };
 
-  return categoryContent[game.category] || categoryContent.slots;
+  const defaults = defaultContent[game.category] || defaultContent.slots;
+
+  // Return actual game content from database if available, otherwise use defaults
+  return {
+    overview: game.gameOverview || defaults.overview,
+    howToPlay: game.howToPlay || defaults.howToPlay,
+    tips: (game.tipsAndStrategies && game.tipsAndStrategies.length > 0) ? game.tipsAndStrategies : defaults.tips,
+    history: game.gameHistory || defaults.history,
+  };
 }
 
 // Home View Component
@@ -741,6 +750,85 @@ function GameBlogView() {
               </div>
             </CardContent>
           </Card>
+
+          {/* How to Download and Install Section */}
+          {currentGame.howToDownloadAndInstall && (
+            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Download className="h-5 w-5 text-yellow-400" />
+                  How to Download and Install
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-purple-200 leading-relaxed whitespace-pre-line">
+                  {currentGame.howToDownloadAndInstall}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* How to Create Account Section */}
+          {currentGame.howToCreateAccount && (
+            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Users className="h-5 w-5 text-yellow-400" />
+                  How to Create Account
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-purple-200 leading-relaxed whitespace-pre-line">
+                  {currentGame.howToCreateAccount}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* FAQs Section */}
+          {currentGame.faqs && currentGame.faqs.length > 0 && (
+            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5 text-yellow-400" />
+                  Frequently Asked Questions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {currentGame.faqs.map((faq, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="p-4 bg-purple-800/30 rounded-lg"
+                    >
+                      <h4 className="font-semibold text-yellow-400 mb-2">{faq.question}</h4>
+                      <p className="text-purple-200 text-sm">{faq.answer}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Conclusion Section */}
+          {currentGame.conclusion && (
+            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Award className="h-5 w-5 text-yellow-400" />
+                  Conclusion
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-200 leading-relaxed">
+                  {currentGame.conclusion}
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}

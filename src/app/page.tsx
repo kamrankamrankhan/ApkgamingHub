@@ -20,7 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { GameCard } from '@/components/games/GameCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { AdminPanel, AdminLogin } from '@/components/admin/AdminPanel';
+
 import { useGameStore } from '@/lib/store';
 import { gamesData, gameCategories, featuredGames, popularGames, newGames, Game } from '@/lib/games-data';
 
@@ -1186,8 +1186,6 @@ export default function Page() {
         return <ProfileView />;
       case 'game':
         return <GameBlogView />;
-      case 'admin':
-        return <AdminPanel />;
       default:
         return <HomeView />;
     }

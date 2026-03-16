@@ -25,7 +25,7 @@ export interface Transaction {
   createdAt: string;
 }
 
-export type ViewType = 'home' | 'slots' | 'casino' | 'skill' | 'poker' | 'bingo' | 'promotions' | 'vip' | 'profile' | 'game' | 'admin';
+export type ViewType = 'home' | 'slots' | 'casino' | 'skill' | 'poker' | 'bingo' | 'promotions' | 'vip' | 'profile' | 'game';
 
 interface GameState {
   // User

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Menu, X, User, Gift, Crown, ChevronDown, Bell, 
-  Search, Star, Heart, Settings, LogOut, Coins, Shield
+  Search, Star, Heart, Settings, LogOut, Coins
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +40,7 @@ const vipColors = {
 };
 
 export function Header() {
-  const { user, currentView, setCurrentView, searchQuery, setSearchQuery, claimDailyBonus, canClaimBonus, isAdmin } = useGameStore();
+  const { user, currentView, setCurrentView, searchQuery, setSearchQuery, claimDailyBonus, canClaimBonus } = useGameStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -76,13 +76,6 @@ export function Header() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setCurrentView('admin')}
-            className="flex items-center gap-1 hover:text-yellow-400 transition-colors"
-          >
-            <Shield className="h-3 w-3" />
-            Admin
-          </button>
           <Link href="#" className="hover:text-yellow-400 transition-colors">Help</Link>
           <Link href="#" className="hover:text-yellow-400 transition-colors">Contact</Link>
         </div>
@@ -97,9 +90,11 @@ export function Header() {
             whileHover={{ scale: 1.02 }}
             onClick={() => handleNavClick('home')}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/30">
-              <span className="text-xl">🎰</span>
-            </div>
+            <img
+              src="/logo.png"
+              alt="APKgaminghub"
+              className="h-10 w-10 object-contain"
+            />
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">
                 APKgaminghub
@@ -169,21 +164,6 @@ export function Header() {
             >
               <Search className="h-5 w-5" />
             </Button>
-
-            {/* Admin Button */}
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                onClick={() => setCurrentView('admin')}
-                variant={isAdmin ? 'default' : 'outline'}
-                className={isAdmin 
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black' 
-                  : 'border-purple-600 text-purple-300 hover:text-white'
-                }
-              >
-                <Shield className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Admin</span>
-              </Button>
-            </motion.div>
 
             {/* User Menu (if logged in) */}
             {user ? (
@@ -361,18 +341,6 @@ export function Header() {
                   {item.label}
                 </button>
               ))}
-              
-              <button
-                onClick={() => handleNavClick('admin')}
-                className={`w-full px-4 py-3 rounded-lg text-left flex items-center gap-3 ${
-                  currentView === 'admin'
-                    ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400'
-                    : 'text-purple-200 hover:bg-white/5'
-                }`}
-              >
-                <Shield className="text-xl" />
-                Admin Panel
-              </button>
               
               {/* Mobile Balance */}
               {user && (

@@ -65,17 +65,19 @@ export function Footer() {
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
-                <span className="text-xl">🎰</span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="APKgaminghub"
+                className="h-10 w-10 object-contain"
+              />
               <div>
                 <h3 className="text-lg font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                  GameTwist
+                  APKgaminghub
                 </h3>
               </div>
             </div>
             <p className="text-sm text-purple-300 mb-4">
-              Play the best free casino games online. Slots, Poker, Roulette, and more - all for fun with virtual Twists!
+              Your ultimate destination for free game downloads. Slots, Poker, Casino games, and more - all available for free!
             </p>
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-purple-400" />
@@ -135,10 +137,10 @@ export function Footer() {
           
           <div className="text-center md:text-right">
             <p className="text-xs text-purple-400">
-              © {new Date().getFullYear()} GameTwist Clone. This is a demo project for educational purposes only.
+              © {new Date().getFullYear()} APKgaminghub. All rights reserved.
             </p>
             <p className="text-xs text-purple-500 mt-1">
-              No real money gambling. Play responsibly. 18+ only.
+              Free game downloads for entertainment purposes only.
             </p>
           </div>
         </div>

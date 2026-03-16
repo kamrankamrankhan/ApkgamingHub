@@ -471,3 +471,112 @@ Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allow
  GET / 200 in 227ms (compile: 32ms, render: 195ms)
  GET /uploads/thumbnail/1773528952503-te9xm1.png 404 in 38ms (compile: 9ms, render: 30ms)
  GET /uploads/thumbnail/1773528952503-te9xm1.png 404 in 42ms (compile: 7ms, render: 36ms)
+✓ Compiled in 170ms
+prisma:query SELECT `main`.`Game`.`id`, `main`.`Game`.`name`, `main`.`Game`.`slug`, `main`.`Game`.`description`, `main`.`Game`.`thumbnail`, `main`.`Game`.`bannerImage`, `main`.`Game`.`category`, `main`.`Game`.`provider`, `main`.`Game`.`isFeatured`, `main`.`Game`.`isNew`, `main`.`Game`.`isPopular`, `main`.`Game`.`minBet`, `main`.`Game`.`maxBet`, `main`.`Game`.`jackpot`, `main`.`Game`.`rtp`, `main`.`Game`.`volatility`, `main`.`Game`.`features`, `main`.`Game`.`paylines`, `main`.`Game`.`reels`, `main`.`Game`.`downloadLink`, `main`.`Game`.`createdAt`, `main`.`Game`.`updatedAt` FROM `main`.`Game` WHERE 1=1 ORDER BY `main`.`Game`.`isFeatured` DESC, `main`.`Game`.`isPopular` DESC, `main`.`Game`.`name` ASC LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Game`.`id` FROM `main`.`Game` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+ GET /api/games 200 in 383ms (compile: 321ms, render: 62ms)
+  Reload env: .env
+ GET / 200 in 53ms (compile: 30ms, render: 23ms)
+  Reload env: .env
+ GET / 200 in 50ms (compile: 33ms, render: 17ms)
+Upload error: Error: Invalid supabaseUrl: Provided URL is malformed.
+    at createSupabaseServerClient (src/lib/supabase/server.ts:7:28)
+    at async uploadFile (src/lib/storage.ts:14:22)
+    at async POST (src/app/api/upload/route.ts:43:20)
+   5 |   const cookieStore = await cookies();
+   6 |   
+>  7 |   return createServerClient(
+     |                            ^
+   8 |     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+   9 |     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  10 |     {
+ POST /api/upload 500 in 584ms (compile: 375ms, render: 209ms)
+ GET / 200 in 277ms (compile: 6ms, render: 271ms)
+✓ Compiled in 210ms
+ GET / 200 in 86ms (compile: 55ms, render: 31ms)
+ GET / 200 in 21ms (compile: 3ms, render: 18ms)
+ GET / 200 in 15ms (compile: 2ms, render: 12ms)
+ GET / 200 in 15ms (compile: 3ms, render: 13ms)
+ GET / 200 in 15ms (compile: 2ms, render: 13ms)
+ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 17ms (compile: 2ms, render: 14ms)
+ GET / 200 in 20ms (compile: 3ms, render: 17ms)
+ GET / 200 in 22ms (compile: 3ms, render: 18ms)
+ GET / 200 in 15ms (compile: 3ms, render: 12ms)
+ GET / 200 in 21ms (compile: 2ms, render: 18ms)
+ GET / 200 in 16ms (compile: 2ms, render: 13ms)
+ GET / 200 in 13ms (compile: 2ms, render: 11ms)
+ GET / 200 in 24ms (compile: 2ms, render: 22ms)
+ GET / 200 in 15ms (compile: 2ms, render: 12ms)
+ GET / 200 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 15ms (compile: 3ms, render: 13ms)
+ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+ GET / 200 in 17ms (compile: 3ms, render: 14ms)
+ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+ GET / 200 in 13ms (compile: 2ms, render: 11ms)
+ GET / 200 in 14ms (compile: 2ms, render: 11ms)
+ GET / 200 in 15ms (compile: 4ms, render: 12ms)
+✓ Compiled in 193ms
+✓ Compiled in 126ms
+ GET / 200 in 303ms (compile: 52ms, render: 251ms)
+✓ Compiled in 151ms
+✓ Compiled in 122ms
+✓ Compiled in 151ms
+✓ Compiled in 139ms
+ GET / 200 in 333ms (compile: 60ms, render: 273ms)
+✓ Compiled in 196ms
+✓ Compiled in 122ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: Image is not defined
+    at Header (src/components/layout/Header.tsx:93:14)
+  91 |             onClick={() => handleNavClick('home')}
+  92 |           >
+> 93 |             <Image
+     |              ^
+  94 |               src="/logo.png"
+  95 |               alt="APKgaminghub"
+  96 |               className="h-10 w-10 object-contain" {
+  digest: '2212167418'
+}
+ GET / 500 in 267ms (compile: 60ms, render: 207ms)
+✓ Compiled in 117ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: Image is not defined
+    at Header (src/components/layout/Header.tsx:93:14)
+  91 |             onClick={() => handleNavClick('home')}
+  92 |           >
+> 93 |             <Image
+     |              ^
+  94 |               src="/logo.png"
+  95 |               alt="APKgaminghub"
+  96 |               className="h-10 w-10 object-contain" {
+  digest: '2212167418'
+}
+ GET / 500 in 234ms (compile: 55ms, render: 179ms)
+✓ Compiled in 184ms
+⨯ Error: Image with src "/logo.png" is missing required "width" property.
+    at ignore-listed frames {
+  digest: '524838091@E451'
+}
+ GET / 500 in 254ms (compile: 52ms, render: 203ms)
+✓ Compiled in 125ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ Error: Image with src "/logo.png" is missing required "width" property.
+    at ignore-listed frames {
+  digest: '3781398345@E451'
+}
+ GET / 500 in 273ms (compile: 61ms, render: 212ms)
+✓ Compiled in 139ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ Error: Image with src "/logo.png" is missing required "width" property.
+    at ignore-listed frames {
+  digest: '1972237729@E451'
+}
+ GET / 500 in 314ms (compile: 51ms, render: 263ms)
+✓ Compiled in 126ms
+✓ Compiled in 120ms
+ GET / 200 in 95ms (compile: 61ms, render: 33ms)
+✓ Compiled in 132ms
+✓ Compiled in 116ms
+ GET / 200 in 313ms (compile: 52ms, render: 260ms)

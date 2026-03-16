@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Save, X, Search, Upload, 
   Image, Gamepad2, Settings, AlertCircle, Check,
   ChevronLeft, ChevronRight, Eye, Loader2, FileText,
-  HelpCircle, BookOpen, Download
+  HelpCircle, BookOpen, Download, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -109,9 +109,80 @@ export function AdminLogin() {
   );
 }
 
+// Game type from database
+interface DbGame {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  thumbnail: string;
+  bannerImage: string | null;
+  category: string;
+  provider: string;
+  isFeatured: boolean;
+  isNew: boolean;
+  isPopular: boolean;
+  minBet: number;
+  maxBet: number;
+  jackpot: number | null;
+  rtp: number | null;
+  volatility: string | null;
+  features: string | null;
+  paylines: number | null;
+  reels: number | null;
+  downloadLink: string | null;
+  gameOverview: string | null;
+  howToPlay: string | null;
+  tipsAndStrategies: string | null;
+  gameHistory: string | null;
+  howToCreateAccount: string | null;
+  conclusion: string | null;
+  faqs: string | null;
+  howToDownloadAndInstall: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Convert database game to frontend Game format
+function dbGameToGame(dbGame: DbGame): Game {
+  return {
+    id: dbGame.id,
+    name: dbGame.name,
+    slug: dbGame.slug,
+    description: dbGame.description || '',
+    thumbnail: dbGame.thumbnail,
+    bannerImage: dbGame.bannerImage || '',
+    category: dbGame.category as Game['category'],
+    provider: dbGame.provider,
+    isFeatured: dbGame.isFeatured,
+    isNew: dbGame.isNew,
+    isPopular: dbGame.isPopular,
+    minBet: dbGame.minBet,
+    maxBet: dbGame.maxBet,
+    jackpot: dbGame.jackpot || undefined,
+    rtp: dbGame.rtp || undefined,
+    volatility: dbGame.volatility as 'low' | 'medium' | 'high' | undefined,
+    features: dbGame.features ? JSON.parse(dbGame.features) : [],
+    paylines: dbGame.paylines || undefined,
+    reels: dbGame.reels || undefined,
+    downloadLink: dbGame.downloadLink || '',
+    gameOverview: dbGame.gameOverview || '',
+    howToPlay: dbGame.howToPlay || '',
+    tipsAndStrategies: dbGame.tipsAndStrategies ? JSON.parse(dbGame.tipsAndStrategies) : [],
+    gameHistory: dbGame.gameHistory || '',
+    howToCreateAccount: dbGame.howToCreateAccount || '',
+    conclusion: dbGame.conclusion || '',
+    faqs: dbGame.faqs ? JSON.parse(dbGame.faqs) : [],
+    howToDownloadAndInstall: dbGame.howToDownloadAndInstall || '',
+  };
+}
+
 // Admin Panel Component
 export function AdminPanel() {
-  const { games, addGame, updateGame, deleteGame, setCurrentView, isAdmin } = useGameStore();
+  const { setCurrentView, isAdmin } = useGameStore();
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -157,6 +228,26 @@ export function AdminPanel() {
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch games from database
+  const fetchGames = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/games');
+      const data = await response.json();
+      if (data.games) {
+        setGames(data.games.map(dbGameToGame));
+      }
+    } catch (error) {
+      console.error('Error fetching games:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGames();
+  }, []);
 
   const handleFileUpload = async (
     file: File,
@@ -227,25 +318,57 @@ export function AdminPanel() {
     return true;
   });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.slug) {
       alert('Please fill in required fields: Name and Slug');
       return;
     }
 
-    if (isAdding) {
-      const newGame = {
-        ...formData,
-        id: formData.slug || `game-${Date.now()}`
-      };
-      addGame(newGame);
-    } else if (editingGame) {
-      updateGame(formData);
-    }
+    setSaving(true);
+    try {
+      if (isAdding) {
+        // Create new game
+        const response = await fetch('/api/games', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          alert(data.error || 'Failed to create game');
+          return;
+        }
+        
+        setGames([...games, dbGameToGame(data.game)]);
+      } else if (editingGame) {
+        // Update existing game
+        const response = await fetch('/api/games', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          alert(data.error || 'Failed to update game');
+          return;
+        }
+        
+        setGames(games.map(g => g.id === formData.id ? dbGameToGame(data.game) : g));
+      }
 
-    setEditingGame(null);
-    setIsAdding(false);
-    setFormData(emptyGame);
+      setEditingGame(null);
+      setIsAdding(false);
+      setFormData(emptyGame);
+    } catch (error) {
+      console.error('Error saving game:', error);
+      alert('Failed to save game');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEdit = (game: Game) => {
@@ -270,8 +393,24 @@ export function AdminPanel() {
     });
   };
 
-  const handleDelete = (gameId: string) => {
-    deleteGame(gameId);
+  const handleDelete = async (gameId: string) => {
+    try {
+      const response = await fetch(`/api/games?id=${gameId}`, {
+        method: 'DELETE',
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || 'Failed to delete game');
+        return;
+      }
+      
+      setGames(games.filter(g => g.id !== gameId));
+    } catch (error) {
+      console.error('Error deleting game:', error);
+      alert('Failed to delete game');
+    }
   };
 
   const addFeature = () => {

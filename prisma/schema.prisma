@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -34,11 +35,11 @@ model Game {
   id            String   @id @default(cuid())
   name          String
   slug          String   @unique
-  description   String?
+  description   String?  @db.Text
   thumbnail     String
   bannerImage   String?
   category      String   // slots, casino, skill, bingo, poker
-  provider      String   @default("GameTwist")
+  provider      String   @default("APKgaminghub")
   isFeatured    Boolean  @default(false)
   isNew         Boolean  @default(false)
   isPopular     Boolean  @default(false)
@@ -47,10 +48,21 @@ model Game {
   jackpot       Int?
   rtp           Float?
   volatility    String?  // low, medium, high
-  features      String?  // JSON string of features
+  features      String?  @db.Text // JSON string of features
   paylines      Int?
   reels         Int?
-  downloadLink  String?  // External download URL
+  downloadLink  String?  @db.Text
+  
+  // Blog Content Fields
+  gameOverview          String?  @db.Text
+  howToPlay             String?  @db.Text
+  tipsAndStrategies     String?  @db.Text // JSON array
+  gameHistory           String?  @db.Text
+  howToCreateAccount    String?  @db.Text
+  conclusion            String?  @db.Text
+  faqs                  String?  @db.Text // JSON array
+  howToDownloadAndInstall String? @db.Text
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   
@@ -98,26 +110,40 @@ model GameSession {
 model Promotion {
   id          String   @id @default(cuid())
   title       String
-  description String
+  description String    @db.Text
   image       String?
   bonusType   String   // daily, weekly, vip, welcome
   bonusAmount Int
   minDeposit  Int?
   expiresAt   DateTime?
   isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Banner {
   id          String   @id @default(cuid())
   title       String
-  subtitle    String?
+  subtitle    String?   @db.Text
   image       String
   link        String?
   buttonText  String?
   isActive    Boolean  @default(true)
   order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model HeroBanner {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String    @db.Text
+  cta         String   @default("Explore") // Call to action button text
+  gradient    String   @default("from-yellow-500 via-orange-500 to-red-500")
+  imageUrl    String?
+  linkUrl     String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

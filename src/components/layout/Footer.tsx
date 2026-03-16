@@ -17,20 +17,6 @@ const footerLinks = {
     { label: 'Bingo', href: '#' },
     { label: 'Novoline', href: '#' }
   ],
-  promotions: [
-    { label: 'Daily Bonus', href: '#' },
-    { label: 'Welcome Offer', href: '#' },
-    { label: 'VIP Program', href: '#' },
-    { label: 'Weekly Promotions', href: '#' },
-    { label: 'Tournaments', href: '#' }
-  ],
-  support: [
-    { label: 'Help Center', href: '#' },
-    { label: 'FAQ', href: '#' },
-    { label: 'Contact Us', href: '#' },
-    { label: 'Responsible Gaming', href: '#' },
-    { label: 'Game Rules', href: '#' }
-  ],
   legal: [
     { label: 'Terms of Service', href: '#' },
     { label: 'Privacy Policy', href: '#' },
@@ -75,7 +61,7 @@ export function Footer() {
 
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
@@ -107,32 +93,6 @@ export function Footer() {
             <h4 className="font-bold text-white mb-3">Games</h4>
             <ul className="space-y-2">
               {footerLinks.games.map((link, i) => (
-                <li key={i}>
-                  <Link href={link.href} className="text-sm text-purple-300 hover:text-yellow-400 transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-3">Promotions</h4>
-            <ul className="space-y-2">
-              {footerLinks.promotions.map((link, i) => (
-                <li key={i}>
-                  <Link href={link.href} className="text-sm text-purple-300 hover:text-yellow-400 transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-3">Support</h4>
-            <ul className="space-y-2">
-              {footerLinks.support.map((link, i) => (
                 <li key={i}>
                   <Link href={link.href} className="text-sm text-purple-300 hover:text-yellow-400 transition-colors">
                     {link.label}

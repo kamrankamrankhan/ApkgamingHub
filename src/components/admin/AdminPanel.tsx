@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Save, X, Search, Upload, 
   Image, Gamepad2, Settings, AlertCircle, Check,
-  ChevronLeft, ChevronRight, Eye, Loader2
+  ChevronLeft, ChevronRight, Eye, Loader2, FileText,
+  HelpCircle, BookOpen, Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -22,15 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,7 +46,6 @@ export function AdminLogin() {
   const [error, setError] = useState('');
 
   const handleLogin = () => {
-    // Simple password check (in production, use proper auth)
     if (password === 'admin123') {
       setAdmin(true);
       setCurrentView('admin');
@@ -134,7 +126,7 @@ export function AdminPanel() {
     thumbnail: 'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?w=400&h=300&fit=crop',
     bannerImage: 'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?w=1200&h=400&fit=crop',
     category: 'slots',
-    provider: 'GameTwist',
+    provider: 'APKgaminghub',
     isFeatured: false,
     isNew: false,
     isPopular: false,
@@ -145,11 +137,22 @@ export function AdminPanel() {
     volatility: 'medium',
     features: [],
     paylines: undefined,
-    reels: undefined
+    reels: undefined,
+    downloadLink: '',
+    gameOverview: '',
+    howToPlay: '',
+    tipsAndStrategies: [],
+    gameHistory: '',
+    howToCreateAccount: '',
+    conclusion: '',
+    faqs: [],
+    howToDownloadAndInstall: ''
   };
 
   const [formData, setFormData] = useState<Game>(emptyGame);
   const [featureInput, setFeatureInput] = useState('');
+  const [tipInput, setTipInput] = useState('');
+  const [faqInput, setFaqInput] = useState({ question: '', answer: '' });
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
@@ -199,7 +202,6 @@ export function AdminPanel() {
         setFormData({ ...formData, thumbnail: url });
       }
     }
-    // Reset input
     if (thumbnailInputRef.current) {
       thumbnailInputRef.current.value = '';
     }
@@ -213,7 +215,6 @@ export function AdminPanel() {
         setFormData({ ...formData, bannerImage: url });
       }
     }
-    // Reset input
     if (bannerInputRef.current) {
       bannerInputRef.current.value = '';
     }
@@ -249,7 +250,13 @@ export function AdminPanel() {
 
   const handleEdit = (game: Game) => {
     setEditingGame(game);
-    setFormData(game);
+    setFormData({
+      ...emptyGame,
+      ...game,
+      features: game.features || [],
+      tipsAndStrategies: game.tipsAndStrategies || [],
+      faqs: game.faqs || []
+    });
     setIsAdding(false);
   };
 
@@ -281,6 +288,40 @@ export function AdminPanel() {
     setFormData({
       ...formData,
       features: formData.features?.filter((_, i) => i !== index)
+    });
+  };
+
+  const addTip = () => {
+    if (tipInput.trim()) {
+      setFormData({
+        ...formData,
+        tipsAndStrategies: [...(formData.tipsAndStrategies || []), tipInput.trim()]
+      });
+      setTipInput('');
+    }
+  };
+
+  const removeTip = (index: number) => {
+    setFormData({
+      ...formData,
+      tipsAndStrategies: formData.tipsAndStrategies?.filter((_, i) => i !== index)
+    });
+  };
+
+  const addFaq = () => {
+    if (faqInput.question.trim() && faqInput.answer.trim()) {
+      setFormData({
+        ...formData,
+        faqs: [...(formData.faqs || []), { ...faqInput }]
+      });
+      setFaqInput({ question: '', answer: '' });
+    }
+  };
+
+  const removeFaq = (index: number) => {
+    setFormData({
+      ...formData,
+      faqs: formData.faqs?.filter((_, i) => i !== index)
     });
   };
 
@@ -397,336 +438,493 @@ export function AdminPanel() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Game Name *</Label>
-                    <Input
-                      value={formData.name}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        name: e.target.value,
-                        slug: e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-                      })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="e.g., Book of Ra"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">URL Slug *</Label>
-                    <Input
-                      value={formData.slug}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="e.g., book-of-ra"
-                    />
-                  </div>
-                </div>
+              <CardContent>
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid grid-cols-4 mb-6 bg-purple-800/30">
+                    <TabsTrigger value="basic" className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400">
+                      <Gamepad2 className="h-4 w-4 mr-2" />
+                      Basic Info
+                    </TabsTrigger>
+                    <TabsTrigger value="details" className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Game Details
+                    </TabsTrigger>
+                    <TabsTrigger value="blog" className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Blog Content
+                    </TabsTrigger>
+                    <TabsTrigger value="faqs" className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400">
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      FAQs
+                    </TabsTrigger>
+                  </TabsList>
 
-                <div className="space-y-2">
-                  <Label className="text-purple-300">Description</Label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="bg-purple-800/30 border-purple-600/50 text-white min-h-[80px]"
-                    placeholder="Game description..."
-                  />
-                </div>
+                  <ScrollArea className="h-[60vh]">
+                    {/* Basic Info Tab */}
+                    <TabsContent value="basic" className="space-y-6 mt-0">
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Game Name *</Label>
+                          <Input
+                            value={formData.name}
+                            onChange={(e) => setFormData({
+                              ...formData,
+                              name: e.target.value,
+                              slug: e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+                            })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="e.g., Book of Ra"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">URL Slug *</Label>
+                          <Input
+                            value={formData.slug}
+                            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="e.g., book-of-ra"
+                          />
+                        </div>
+                      </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Thumbnail Image</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={formData.thumbnail}
-                        onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                        className="bg-purple-800/30 border-purple-600/50 text-white flex-1"
-                        placeholder="https://..."
-                      />
-                      <input
-                        ref={thumbnailInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleThumbnailChange}
-                        className="hidden"
-                        id="thumbnail-upload"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => thumbnailInputRef.current?.click()}
-                        disabled={uploadingThumbnail}
-                        className="border-purple-600 text-purple-300 hover:bg-purple-700 shrink-0"
-                      >
-                        {uploadingThumbnail ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Upload className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {formData.thumbnail && (
-                      <img
-                        src={formData.thumbnail}
-                        alt="Thumbnail preview"
-                        className="w-20 h-16 object-cover rounded mt-2"
-                      />
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Banner Image</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={formData.bannerImage}
-                        onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
-                        className="bg-purple-800/30 border-purple-600/50 text-white flex-1"
-                        placeholder="https://..."
-                      />
-                      <input
-                        ref={bannerInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleBannerChange}
-                        className="hidden"
-                        id="banner-upload"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => bannerInputRef.current?.click()}
-                        disabled={uploadingBanner}
-                        className="border-purple-600 text-purple-300 hover:bg-purple-700 shrink-0"
-                      >
-                        {uploadingBanner ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Upload className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {formData.bannerImage && (
-                      <img
-                        src={formData.bannerImage}
-                        alt="Banner preview"
-                        className="w-full h-16 object-cover rounded mt-2"
-                      />
-                    )}
-                  </div>
-                </div>
+                      <div className="space-y-2">
+                        <Label className="text-purple-300">Short Description</Label>
+                        <Textarea
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white min-h-[80px]"
+                          placeholder="Brief game description for cards and listings..."
+                        />
+                      </div>
 
-                {/* Category and Provider */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Category</Label>
-                    <Select 
-                      value={formData.category} 
-                      onValueChange={(value) => setFormData({ ...formData, category: value as Game['category'] })}
-                    >
-                      <SelectTrigger className="bg-purple-800/30 border-purple-600/50 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-purple-900 border-purple-700">
-                        {gameCategories.map(cat => (
-                          <SelectItem key={cat.id} value={cat.id}>{cat.icon} {cat.name}</SelectItem>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Thumbnail Image</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={formData.thumbnail}
+                              onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                              className="bg-purple-800/30 border-purple-600/50 text-white flex-1"
+                              placeholder="https://..."
+                            />
+                            <input
+                              ref={thumbnailInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleThumbnailChange}
+                              className="hidden"
+                              id="thumbnail-upload"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => thumbnailInputRef.current?.click()}
+                              disabled={uploadingThumbnail}
+                              className="border-purple-600 text-purple-300 hover:bg-purple-700 shrink-0"
+                            >
+                              {uploadingThumbnail ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Upload className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                          {formData.thumbnail && (
+                            <img
+                              src={formData.thumbnail}
+                              alt="Thumbnail preview"
+                              className="w-24 h-16 object-cover rounded mt-2"
+                            />
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Banner Image</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={formData.bannerImage}
+                              onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
+                              className="bg-purple-800/30 border-purple-600/50 text-white flex-1"
+                              placeholder="https://..."
+                            />
+                            <input
+                              ref={bannerInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleBannerChange}
+                              className="hidden"
+                              id="banner-upload"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => bannerInputRef.current?.click()}
+                              disabled={uploadingBanner}
+                              className="border-purple-600 text-purple-300 hover:bg-purple-700 shrink-0"
+                            >
+                              {uploadingBanner ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Upload className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                          {formData.bannerImage && (
+                            <img
+                              src={formData.bannerImage}
+                              alt="Banner preview"
+                              className="w-full h-16 object-cover rounded mt-2"
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Category</Label>
+                          <Select 
+                            value={formData.category} 
+                            onValueChange={(value) => setFormData({ ...formData, category: value as Game['category'] })}
+                          >
+                            <SelectTrigger className="bg-purple-800/30 border-purple-600/50 text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-purple-900 border-purple-700">
+                              {gameCategories.map(cat => (
+                                <SelectItem key={cat.id} value={cat.id}>{cat.icon} {cat.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Provider</Label>
+                          <Input
+                            value={formData.provider}
+                            onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="e.g., Novomatic"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-purple-300">Download Link</Label>
+                        <Input
+                          value={formData.downloadLink || ''}
+                          onChange={(e) => setFormData({ ...formData, downloadLink: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white"
+                          placeholder="https://example.com/download/game.apk"
+                        />
+                      </div>
+
+                      {/* Badges */}
+                      <div className="flex flex-wrap gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.isFeatured}
+                            onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                            className="w-4 h-4 rounded bg-purple-800 border-purple-600"
+                          />
+                          <span className="text-purple-300">Featured</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.isNew}
+                            onChange={(e) => setFormData({ ...formData, isNew: e.target.checked })}
+                            className="w-4 h-4 rounded bg-purple-800 border-purple-600"
+                          />
+                          <span className="text-purple-300">New</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.isPopular}
+                            onChange={(e) => setFormData({ ...formData, isPopular: e.target.checked })}
+                            className="w-4 h-4 rounded bg-purple-800 border-purple-600"
+                          />
+                          <span className="text-purple-300">Popular</span>
+                        </label>
+                      </div>
+                    </TabsContent>
+
+                    {/* Game Details Tab */}
+                    <TabsContent value="details" className="space-y-6 mt-0">
+                      <div className="grid md:grid-cols-4 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Min Bet</Label>
+                          <Input
+                            type="number"
+                            value={formData.minBet}
+                            onChange={(e) => setFormData({ ...formData, minBet: parseInt(e.target.value) || 0 })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Max Bet</Label>
+                          <Input
+                            type="number"
+                            value={formData.maxBet}
+                            onChange={(e) => setFormData({ ...formData, maxBet: parseInt(e.target.value) || 0 })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">RTP %</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={formData.rtp || ''}
+                            onChange={(e) => setFormData({ ...formData, rtp: parseFloat(e.target.value) || undefined })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="96.5"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Jackpot</Label>
+                          <Input
+                            type="number"
+                            value={formData.jackpot || ''}
+                            onChange={(e) => setFormData({ ...formData, jackpot: parseInt(e.target.value) || undefined })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="50000"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Volatility</Label>
+                          <Select 
+                            value={formData.volatility || 'medium'} 
+                            onValueChange={(value) => setFormData({ ...formData, volatility: value as 'low' | 'medium' | 'high' })}
+                          >
+                            <SelectTrigger className="bg-purple-800/30 border-purple-600/50 text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-purple-900 border-purple-700">
+                              <SelectItem value="low">Low</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="high">High</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Reels</Label>
+                          <Input
+                            type="number"
+                            value={formData.reels || ''}
+                            onChange={(e) => setFormData({ ...formData, reels: parseInt(e.target.value) || undefined })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="5"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-purple-300">Paylines</Label>
+                          <Input
+                            type="number"
+                            value={formData.paylines || ''}
+                            onChange={(e) => setFormData({ ...formData, paylines: parseInt(e.target.value) || undefined })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="20"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Features */}
+                      <div className="space-y-2">
+                        <Label className="text-purple-300">Game Features</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            value={featureInput}
+                            onChange={(e) => setFeatureInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="e.g., Free Spins"
+                          />
+                          <Button onClick={addFeature} variant="outline" className="border-purple-600 text-purple-300">
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {formData.features?.map((feature, i) => (
+                            <Badge key={i} className="bg-purple-700/50 text-white pr-1">
+                              {feature}
+                              <button onClick={() => removeFeature(i)} className="ml-2 hover:text-red-400">
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Blog Content Tab */}
+                    <TabsContent value="blog" className="space-y-6 mt-0">
+                      <div className="space-y-2">
+                        <Label className="text-purple-300 flex items-center gap-2">
+                          <BookOpen className="h-4 w-4" />
+                          Game Overview
+                        </Label>
+                        <Textarea
+                          value={formData.gameOverview || ''}
+                          onChange={(e) => setFormData({ ...formData, gameOverview: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white min-h-[120px]"
+                          placeholder="Write a comprehensive overview of the game..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-purple-300 flex items-center gap-2">
+                          <Gamepad2 className="h-4 w-4" />
+                          How to Play
+                        </Label>
+                        <Textarea
+                          value={formData.howToPlay || ''}
+                          onChange={(e) => setFormData({ ...formData, howToPlay: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white min-h-[120px]"
+                          placeholder="Explain how to play the game step by step..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-purple-300">Tips & Strategies</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            value={tipInput}
+                            onChange={(e) => setTipInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTip())}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="Add a tip or strategy..."
+                          />
+                          <Button onClick={addTip} variant="outline" className="border-purple-600 text-purple-300">
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="space-y-2 mt-2">
+                          {formData.tipsAndStrategies?.map((tip, i) => (
+                            <div key={i} className="flex items-start gap-2 p-2 bg-purple-800/20 rounded-lg">
+                              <span className="text-yellow-400 font-bold">{i + 1}.</span>
+                              <span className="text-white flex-1">{tip}</span>
+                              <button onClick={() => removeTip(i)} className="text-purple-400 hover:text-red-400">
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-purple-300">Game History</Label>
+                        <Textarea
+                          value={formData.gameHistory || ''}
+                          onChange={(e) => setFormData({ ...formData, gameHistory: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white min-h-[100px]"
+                          placeholder="Background and history of the game..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-purple-300">How to Create Account</Label>
+                        <Textarea
+                          value={formData.howToCreateAccount || ''}
+                          onChange={(e) => setFormData({ ...formData, howToCreateAccount: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white min-h-[100px]"
+                          placeholder="Steps to create an account..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-purple-300 flex items-center gap-2">
+                          <Download className="h-4 w-4" />
+                          How to Download & Install
+                        </Label>
+                        <Textarea
+                          value={formData.howToDownloadAndInstall || ''}
+                          onChange={(e) => setFormData({ ...formData, howToDownloadAndInstall: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white min-h-[100px]"
+                          placeholder="Download and installation instructions..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-purple-300">Conclusion</Label>
+                        <Textarea
+                          value={formData.conclusion || ''}
+                          onChange={(e) => setFormData({ ...formData, conclusion: e.target.value })}
+                          className="bg-purple-800/30 border-purple-600/50 text-white min-h-[100px]"
+                          placeholder="Final thoughts and recommendations..."
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* FAQs Tab */}
+                    <TabsContent value="faqs" className="space-y-6 mt-0">
+                      <div className="p-4 bg-purple-800/20 rounded-lg space-y-4">
+                        <h4 className="text-white font-medium">Add New FAQ</h4>
+                        <div className="space-y-2">
+                          <Input
+                            value={faqInput.question}
+                            onChange={(e) => setFaqInput({ ...faqInput, question: e.target.value })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white"
+                            placeholder="Question..."
+                          />
+                          <Textarea
+                            value={faqInput.answer}
+                            onChange={(e) => setFaqInput({ ...faqInput, answer: e.target.value })}
+                            className="bg-purple-800/30 border-purple-600/50 text-white min-h-[80px]"
+                            placeholder="Answer..."
+                          />
+                          <Button onClick={addFaq} variant="outline" className="border-purple-600 text-purple-300">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add FAQ
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {formData.faqs?.map((faq, i) => (
+                          <div key={i} className="p-4 bg-purple-800/20 rounded-lg">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <p className="text-yellow-400 font-medium mb-1">Q: {faq.question}</p>
+                                <p className="text-purple-200">A: {faq.answer}</p>
+                              </div>
+                              <button onClick={() => removeFaq(i)} className="text-purple-400 hover:text-red-400">
+                                <X className="h-5 w-5" />
+                              </button>
+                            </div>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Provider</Label>
-                    <Input
-                      value={formData.provider}
-                      onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="e.g., Novomatic"
-                    />
-                  </div>
-                </div>
+                        {(!formData.faqs || formData.faqs.length === 0) && (
+                          <p className="text-center text-purple-400 py-8">No FAQs added yet</p>
+                        )}
+                      </div>
+                    </TabsContent>
+                  </ScrollArea>
 
-                {/* Betting */}
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Min Bet</Label>
-                    <Input
-                      type="number"
-                      value={formData.minBet}
-                      onChange={(e) => setFormData({ ...formData, minBet: parseInt(e.target.value) || 0 })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Max Bet</Label>
-                    <Input
-                      type="number"
-                      value={formData.maxBet}
-                      onChange={(e) => setFormData({ ...formData, maxBet: parseInt(e.target.value) || 0 })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">RTP %</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.rtp || ''}
-                      onChange={(e) => setFormData({ ...formData, rtp: parseFloat(e.target.value) || undefined })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="96.5"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Jackpot</Label>
-                    <Input
-                      type="number"
-                      value={formData.jackpot || ''}
-                      onChange={(e) => setFormData({ ...formData, jackpot: parseInt(e.target.value) || undefined })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="50000"
-                    />
-                  </div>
-                </div>
-
-                {/* Slot-specific */}
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Volatility</Label>
-                    <Select 
-                      value={formData.volatility || 'medium'} 
-                      onValueChange={(value) => setFormData({ ...formData, volatility: value as 'low' | 'medium' | 'high' })}
+                  {/* Actions */}
+                  <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-purple-700/50">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setEditingGame(null);
+                        setIsAdding(false);
+                        setFormData(emptyGame);
+                      }}
+                      className="border-purple-600 text-purple-300"
                     >
-                      <SelectTrigger className="bg-purple-800/30 border-purple-600/50 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-purple-900 border-purple-700">
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Reels</Label>
-                    <Input
-                      type="number"
-                      value={formData.reels || ''}
-                      onChange={(e) => setFormData({ ...formData, reels: parseInt(e.target.value) || undefined })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="5"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-purple-300">Paylines</Label>
-                    <Input
-                      type="number"
-                      value={formData.paylines || ''}
-                      onChange={(e) => setFormData({ ...formData, paylines: parseInt(e.target.value) || undefined })}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="20"
-                    />
-                  </div>
-                </div>
-
-                {/* Features */}
-                <div className="space-y-2">
-                  <Label className="text-purple-300">Features</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      value={featureInput}
-                      onChange={(e) => setFeatureInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && addFeature()}
-                      className="bg-purple-800/30 border-purple-600/50 text-white"
-                      placeholder="e.g., Free Spins"
-                    />
-                    <Button onClick={addFeature} variant="outline" className="border-purple-600 text-purple-300">
-                      <Plus className="h-4 w-4" />
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {isAdding ? 'Add Game' : 'Save Changes'}
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.features?.map((feature, i) => (
-                      <Badge key={i} className="bg-purple-700/50 text-white pr-1">
-                        {feature}
-                        <button onClick={() => removeFeature(i)} className="ml-2 hover:text-red-400">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Badges */}
-                <div className="flex flex-wrap gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.isFeatured}
-                      onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                      className="w-4 h-4 rounded bg-purple-800 border-purple-600"
-                    />
-                    <span className="text-purple-300">Featured</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.isNew}
-                      onChange={(e) => setFormData({ ...formData, isNew: e.target.checked })}
-                      className="w-4 h-4 rounded bg-purple-800 border-purple-600"
-                    />
-                    <span className="text-purple-300">New</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.isPopular}
-                      onChange={(e) => setFormData({ ...formData, isPopular: e.target.checked })}
-                      className="w-4 h-4 rounded bg-purple-800 border-purple-600"
-                    />
-                    <span className="text-purple-300">Popular</span>
-                  </label>
-                </div>
-
-                {/* Preview */}
-                <div className="p-4 bg-purple-800/20 rounded-lg">
-                  <p className="text-sm text-purple-400 mb-2">Preview</p>
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={formData.thumbnail}
-                      alt="Preview"
-                      className="w-20 h-16 object-cover rounded"
-                    />
-                    <div>
-                      <p className="font-bold text-white">{formData.name || 'Game Name'}</p>
-                      <p className="text-sm text-purple-300">{formData.provider}</p>
-                      <div className="flex gap-1 mt-1">
-                        {formData.isFeatured && <Badge className="bg-yellow-500 text-black text-[10px]">HOT</Badge>}
-                        {formData.isNew && <Badge className="bg-green-500 text-white text-[10px]">NEW</Badge>}
-                        {formData.isPopular && <Badge className="bg-pink-500 text-white text-[10px]">POPULAR</Badge>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setEditingGame(null);
-                      setIsAdding(false);
-                      setFormData(emptyGame);
-                    }}
-                    className="border-purple-600 text-purple-300"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {isAdding ? 'Add Game' : 'Save Changes'}
-                  </Button>
-                </div>
+                </Tabs>
               </CardContent>
             </Card>
           </motion.div>
@@ -739,7 +937,7 @@ export function AdminPanel() {
           <CardTitle className="text-white">Games ({filteredGames.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-96 overflow-y-auto scrollable-container">
             {filteredGames.map((game) => (
               <motion.div
                 key={game.id}

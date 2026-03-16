@@ -43,6 +43,7 @@ export function Header() {
   const { user, currentView, setCurrentView, searchQuery, setSearchQuery, claimDailyBonus, canClaimBonus, isAdmin } = useGameStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const handleNavClick = (view: ViewType) => {
     setCurrentView(view);
@@ -56,6 +57,14 @@ export function Header() {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    // Navigate to slots when searching to show results
+    if (value && currentView === 'home') {
+      setCurrentView('slots');
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-950/95 via-purple-900/95 to-purple-950/95 backdrop-blur-md border-b border-purple-700/50">
       {/* Top Bar */}
@@ -63,7 +72,7 @@ export function Header() {
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <Star className="h-3 w-3 text-yellow-400" />
-            Welcome to GameTwist - Play FREE Casino Games!
+            Welcome to APKgaminghub - Download Free Games!
           </span>
         </div>
         <div className="flex items-center gap-4">
@@ -75,7 +84,7 @@ export function Header() {
             Admin
           </button>
           <Link href="#" className="hover:text-yellow-400 transition-colors">Help</Link>
-          <Link href="#" className="hover:text-yellow-400 transition-colors">Responsible Gaming</Link>
+          <Link href="#" className="hover:text-yellow-400 transition-colors">Contact</Link>
         </div>
       </div>
 
@@ -93,9 +102,9 @@ export function Header() {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                GameTwist
+                APKgaminghub
               </h1>
-              <p className="text-[10px] text-purple-300 -mt-1">Free Casino Games</p>
+              <p className="text-[10px] text-purple-300 -mt-1">Free Game Downloads</p>
             </div>
           </motion.div>
 
@@ -121,7 +130,7 @@ export function Header() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Search */}
+            {/* Desktop Search */}
             <AnimatePresence>
               {showSearch && (
                 <motion.div
@@ -134,7 +143,7 @@ export function Header() {
                     type="text"
                     placeholder="Search games..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => handleSearch(e.target.value)}
                     className="w-48 bg-white/10 border-purple-500/50 text-white placeholder:text-purple-300"
                     autoFocus
                   />
@@ -145,8 +154,18 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-purple-200 hover:text-white hover:bg-white/10"
+              className="text-purple-200 hover:text-white hover:bg-white/10 hidden sm:flex"
               onClick={() => setShowSearch(!showSearch)}
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+
+            {/* Mobile Search Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-purple-200 hover:text-white hover:bg-white/10 sm:hidden"
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -278,6 +297,45 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Bar */}
+      <AnimatePresence>
+        {mobileSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="sm:hidden bg-purple-950 border-t border-purple-700/50"
+          >
+            <div className="container mx-auto px-4 py-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-400" />
+                <Input
+                  type="text"
+                  placeholder="Search games..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-10 bg-white/10 border-purple-500/50 text-white placeholder:text-purple-300"
+                  autoFocus
+                />
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-purple-400 hover:text-white"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setMobileSearchOpen(false);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Menu */}
       <AnimatePresence>

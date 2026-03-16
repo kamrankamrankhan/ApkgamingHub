@@ -204,67 +204,6 @@ function HomeView() {
         </div>
       </section>
 
-      {/* Daily Bonus Banner */}
-      {canClaimBonus && (
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-xl bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 p-6"
-        >
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <Gift className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-white">Daily Bonus Available!</h3>
-                <p className="text-white/80">Claim your free Twists now</p>
-              </div>
-            </div>
-            <Button 
-              className="bg-white text-green-600 hover:bg-white/90 font-bold"
-              onClick={() => {
-                const amount = claimDailyBonus();
-                if (amount > 0) {
-                  // Bonus claimed successfully
-                }
-              }}
-            >
-              Claim {5000 + (user?.level || 1) * 500} Twists
-            </Button>
-          </div>
-        </motion.section>
-      )}
-
-      {/* Quick Stats */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { icon: Coins, label: 'Your Balance', value: user?.twists.toLocaleString() || '0', color: 'text-yellow-400' },
-          { icon: Trophy, label: 'Your Level', value: `Level ${user?.level || 1}`, color: 'text-purple-400' },
-          { icon: Crown, label: 'VIP Status', value: user?.vipStatus || 'Bronze', color: 'text-orange-400' },
-          { icon: Star, label: 'XP Progress', value: `${user?.xp || 0}/${(user?.level || 1) * 1000}`, color: 'text-green-400' }
-        ].map((stat, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-          >
-            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                  <div>
-                    <p className="text-xs text-purple-400">{stat.label}</p>
-                    <p className="font-bold text-white">{stat.value}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </section>
-
       {/* Game Categories */}
       <section>
         <div className="flex items-center justify-between mb-4">
@@ -293,6 +232,24 @@ function HomeView() {
         </div>
       </section>
 
+      {/* Most Popular Games */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-6 w-6 text-pink-400" />
+            <h2 className="text-2xl font-bold text-white">Most Popular</h2>
+          </div>
+          <Button variant="link" className="text-yellow-400" onClick={() => setCurrentView('slots')}>
+            See All <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {popularGames.slice(0, 6).map((game, i) => (
+            <GameCard key={game.id} game={game} index={i} />
+          ))}
+        </div>
+      </section>
+
       {/* Featured Games */}
       <section>
         <div className="flex items-center justify-between mb-4">
@@ -306,24 +263,6 @@ function HomeView() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {featuredGames.slice(0, 6).map((game, i) => (
-            <GameCard key={game.id} game={game} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* Popular Games */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-pink-400" />
-            <h2 className="text-2xl font-bold text-white">Most Popular</h2>
-          </div>
-          <Button variant="link" className="text-yellow-400" onClick={() => setCurrentView('slots')}>
-            See All <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {popularGames.slice(0, 6).map((game, i) => (
             <GameCard key={game.id} game={game} index={i} />
           ))}
         </div>

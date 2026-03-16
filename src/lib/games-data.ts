@@ -18,6 +18,17 @@ export interface Game {
   features?: string[];
   paylines?: number;
   reels?: number;
+  downloadLink?: string;
+  
+  // Blog Content Fields
+  gameOverview?: string;
+  howToPlay?: string;
+  tipsAndStrategies?: string[];
+  gameHistory?: string;
+  howToCreateAccount?: string;
+  conclusion?: string;
+  faqs?: Array<{ question: string; answer: string }>;
+  howToDownloadAndInstall?: string;
 }
 
 export const gamesData: Game[] = [

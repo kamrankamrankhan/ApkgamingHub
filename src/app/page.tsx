@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { GameCard } from '@/components/games/GameCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { SEOHead } from '@/components/seo/DynamicSEO';
 
 import { useGameStore } from '@/lib/store';
 import { gamesData, gameCategories, featuredGames, popularGames, newGames, Game } from '@/lib/games-data';
@@ -1284,7 +1285,7 @@ function ProfileView() {
 
 // Main Page Component
 export default function Page() {
-  const { currentView, fetchGames, gamesLoaded } = useGameStore();
+  const { currentView, fetchGames, gamesLoaded, currentGame } = useGameStore();
 
   // Fetch games from database on mount (for all views)
   useEffect(() => {
@@ -1322,6 +1323,9 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-950 via-purple-900 to-purple-950">
+      {/* Dynamic SEO Meta Tags */}
+      <SEOHead game={currentGame} view={currentView !== 'home' && currentView !== 'game' ? currentView : undefined} />
+      
       <Header />
       <main className="flex-1 container mx-auto px-4 py-6">
         <AnimatePresence mode="wait">

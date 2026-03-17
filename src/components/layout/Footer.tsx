@@ -144,21 +144,6 @@ export function Footer() {
             </p>
           </div>
         </div>
-
-        {/* Payment Methods (Demo) */}
-        <div className="mt-6 pt-4 border-t border-purple-700/30">
-          <p className="text-xs text-purple-400 text-center mb-3">Payment Methods (Demo)</p>
-          <div className="flex flex-wrap items-center justify-center gap-3 opacity-50">
-            {['Visa', 'Mastercard', 'PayPal', 'Skrill', 'Neteller'].map((method, i) => (
-              <div
-                key={i}
-                className="px-3 py-1.5 bg-purple-800/30 rounded-lg text-xs text-purple-300"
-              >
-                {method}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </footer>
   );

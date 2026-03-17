@@ -14,24 +14,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "APKgaminghub - Download Free Games & APK Mods",
+  description: "Download free games, APK mods, and discover the best gaming content. Your ultimate gaming destination with tips, guides, and downloads.",
+  keywords: ["APKgaminghub", "APK download", "free games", "game mods", "gaming", "Android games", "game guides"],
+  authors: [{ name: "APKgaminghub Team" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "APKgaminghub - Download Free Games & APK Mods",
+    description: "Download free games, APK mods, and discover the best gaming content.",
+    url: "https://apkgaminghub.com",
+    siteName: "APKgaminghub",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "APKgaminghub - Download Free Games & APK Mods",
+    description: "Download free games, APK mods, and discover the best gaming content.",
   },
 };
 

@@ -103,25 +103,9 @@ function getGameBlogContent(game: Game) {
 
 // Home View Component
 function HomeView() {
-  const { setCurrentView, setCurrentGame, user, claimDailyBonus, canClaimBonus, games, fetchGames, gamesLoaded } = useGameStore();
+  const { setCurrentView, setCurrentGame, user, claimDailyBonus, canClaimBonus, games, gamesLoaded } = useGameStore();
   
-  // Fetch games from database on mount
-  useEffect(() => {
-    if (!gamesLoaded) {
-      fetchGames();
-    }
-  }, [gamesLoaded, fetchGames]);
-  
-  // Compute featured, popular, and new games from store
-  const featuredGames = games.filter(g => g.isFeatured);
-  const popularGames = games.filter(g => g.isPopular);
-  const newGames = games.filter(g => g.isNew);
-  
-  // Compute category counts
-  const categoryCounts = gameCategories.map(cat => ({
-    ...cat,
-    count: games.filter(g => g.category === cat.id).length
-  }));
+  const [currentBanner, setCurrentBanner] = useState(0);
 
   const heroBanners = [
     {
@@ -144,14 +128,37 @@ function HomeView() {
     }
   ];
 
-  const [currentBanner, setCurrentBanner] = useState(0);
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % heroBanners.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroBanners.length]);
+
+  // Show loading state while fetching games
+  if (!gamesLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full"
+        />
+        <p className="text-purple-300">Loading games...</p>
+      </div>
+    );
+  }
+  
+  // Compute featured, popular, and new games from store
+  const featuredGames = games.filter(g => g.isFeatured);
+  const popularGames = games.filter(g => g.isPopular);
+  const newGames = games.filter(g => g.isNew);
+  
+  // Compute category counts
+  const categoryCounts = gameCategories.map(cat => ({
+    ...cat,
+    count: games.filter(g => g.category === cat.id).length
+  }));
 
   return (
     <div className="space-y-8">
@@ -360,7 +367,21 @@ function HomeView() {
 
 // Games List View Component
 function GamesListView({ category }: { category: string }) {
-  const { games, searchQuery, setSearchQuery, filterNew, filterPopular, filterFeatured, toggleFilter } = useGameStore();
+  const { games, searchQuery, setSearchQuery, filterNew, filterPopular, filterFeatured, toggleFilter, gamesLoaded } = useGameStore();
+  
+  // Show loading state while fetching games
+  if (!gamesLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full"
+        />
+        <p className="text-purple-300">Loading games...</p>
+      </div>
+    );
+  }
   
   const filteredGames = games.filter(game => {
     // Category filter
@@ -1263,7 +1284,14 @@ function ProfileView() {
 
 // Main Page Component
 export default function Page() {
-  const { currentView } = useGameStore();
+  const { currentView, fetchGames, gamesLoaded } = useGameStore();
+
+  // Fetch games from database on mount (for all views)
+  useEffect(() => {
+    if (!gamesLoaded) {
+      fetchGames();
+    }
+  }, [gamesLoaded, fetchGames]);
 
   const renderView = () => {
     switch (currentView) {

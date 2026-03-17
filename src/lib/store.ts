@@ -122,7 +122,7 @@ export const useGameStore = create<GameState>()(
       user: null,
       isLoggedIn: false,
       isAdmin: false,
-      games: gamesData, // Start with hardcoded data, will be replaced by DB data
+      games: [], // Start empty, will be populated from database
       gamesLoaded: false,
       currentGame: null,
       favorites: [],

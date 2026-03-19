@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { Game } from '@/lib/games-data';
+import { gamePublicUrl } from '@/lib/game-routes';
 
 interface SEOHeadProps {
   game?: Game | null;
@@ -13,6 +14,7 @@ export function SEOHead({ game, view }: SEOHeadProps) {
     const baseUrl = 'https://apkgaminghub.com';
     
     if (game) {
+      const pageUrl = gamePublicUrl(game, baseUrl);
       // Game page SEO
       const title = `${game.name} - Download & Game Guide | APKgaminghub`;
       const description = game.description || `Download ${game.name} and read our comprehensive game guide with tips, strategies, and how to play instructions.`;
@@ -41,7 +43,7 @@ export function SEOHead({ game, view }: SEOHeadProps) {
       updateMetaTag('og:title', title, 'property');
       updateMetaTag('og:description', description, 'property');
       updateMetaTag('og:type', 'article', 'property');
-      updateMetaTag('og:url', `${baseUrl}/?game=${game.slug}`, 'property');
+      updateMetaTag('og:url', pageUrl, 'property');
       updateMetaTag('og:image', game.thumbnail, 'property');
       updateMetaTag('og:site_name', 'APKgaminghub', 'property');
       
@@ -53,7 +55,7 @@ export function SEOHead({ game, view }: SEOHeadProps) {
       updateMetaTag('twitter:site', '@apkgaminghub', 'name');
       
       // Canonical URL
-      updateCanonicalUrl(`${baseUrl}/?game=${game.slug}`);
+      updateCanonicalUrl(pageUrl);
       
       // Add game structured data
       const gameStructuredData = {
@@ -79,7 +81,7 @@ export function SEOHead({ game, view }: SEOHeadProps) {
           "ratingCount": "1000"
         } : undefined,
         "image": game.thumbnail,
-        "url": `${baseUrl}/?game=${game.slug}`,
+        "url": pageUrl,
         "publisher": {
           "@type": "Organization",
           "name": game.provider || "APKgaminghub"

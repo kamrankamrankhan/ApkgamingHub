@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { 
   Search, Filter, Sparkles, Star, Gift, Crown, Trophy, 
   Zap, ChevronRight, Play, X, Volume2, VolumeX, 
@@ -18,93 +19,17 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { GameCard } from '@/components/games/GameCard';
+import { GameBlogView } from '@/components/games/GameBlogView';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { SEOHead } from '@/components/seo/DynamicSEO';
 
 import { useGameStore } from '@/lib/store';
-import { gamesData, gameCategories, featuredGames, popularGames, newGames, Game } from '@/lib/games-data';
-
-// Game Blog Content Generator
-function getGameBlogContent(game: Game) {
-  // Default content based on category (fallback)
-  const defaultContent: Record<string, { overview: string; howToPlay: string; tips: string[]; history: string }> = {
-    slots: {
-      overview: `${game.name} is an exciting slot machine game that brings the thrill of Vegas right to your screen. With ${game.reels || 5} reels and ${game.paylines || 'multiple'} paylines, this game offers endless entertainment and the chance to win big!`,
-      howToPlay: `Playing ${game.name} is simple and straightforward. First, set your bet amount using the controls at the bottom of the screen. You can adjust your bet from ${game.minBet} to ${game.maxBet.toLocaleString()} Twists. Once you've set your bet, hit the spin button and watch the reels come to life! Match symbols across the paylines to win prizes.`,
-      tips: [
-        'Start with smaller bets to understand the game mechanics',
-        'Look out for special symbols like Wilds and Scatters',
-        game.features?.includes('Free Spins') ? 'Free Spins can significantly boost your winnings!' : 'Bonus rounds offer extra winning opportunities',
-        'Set a budget before playing and stick to it',
-        'Higher volatility means bigger but less frequent wins'
-      ],
-      history: `Slot machines have a rich history dating back to the late 19th century. ${game.name} continues this tradition while incorporating modern graphics and gameplay features that make it a favorite among players worldwide.`
-    },
-    casino: {
-      overview: `${game.name} brings the authentic casino experience to your fingertips. Whether you're a seasoned player or new to casino games, this classic offers excitement and strategy in equal measure.`,
-      howToPlay: `Master ${game.name} by understanding the rules and developing your strategy. Place your bets wisely and make decisions based on probability and intuition. The game offers various betting options to suit different playing styles.`,
-      tips: [
-        'Learn the basic rules before placing large bets',
-        'Understand the odds and payouts for each bet type',
-        'Practice with smaller bets first',
-        'Set win and loss limits for each session',
-        'Take breaks to maintain focus'
-      ],
-      history: `${game.name} has been a staple in casinos around the world for decades. Its enduring popularity speaks to the perfect blend of luck and skill required to play.`
-    },
-    poker: {
-      overview: `${game.name} is one of the most popular poker variants in the world. Test your skills against other players and see if you have what it takes to win the pot!`,
-      howToPlay: `In ${game.name}, each player receives their cards and must make the best possible hand. Use your knowledge of poker hand rankings and betting strategies to outplay your opponents. Bluffing, reading opponents, and knowing when to fold are key skills.`,
-      tips: [
-        'Learn the hand rankings thoroughly',
-        'Position is crucial - play tighter from early positions',
-        'Don\'t bluff too often, especially against beginners',
-        'Manage your bankroll carefully',
-        'Practice reading your opponents\' behavior'
-      ],
-      history: `Poker has evolved over centuries, and ${game.name} has become one of the most beloved variants, played in casinos and homes around the world.`
-    },
-    skill: {
-      overview: `${game.name} combines strategy and skill for a uniquely engaging experience. Unlike pure chance games, your decisions directly influence the outcome!`,
-      howToPlay: `Success in ${game.name} requires careful planning and strategic thinking. Study the rules, practice regularly, and develop your own winning strategies. Each game presents new challenges and opportunities.`,
-      tips: [
-        'Practice regularly to improve your skills',
-        'Study different strategies and techniques',
-        'Learn from your mistakes',
-        'Play against different opponents to gain experience',
-        'Stay patient and focused during matches'
-      ],
-      history: `${game.name} has a long tradition as a game of skill and strategy, enjoyed by players who appreciate mental challenges.`
-    },
-    bingo: {
-      overview: `${game.name} offers fast-paced bingo action with multiple ways to win! Mark off your numbers and shout BINGO to claim your prize!`,
-      howToPlay: `Playing ${game.name} is easy - just watch as numbers are called and mark them off your card. Complete a line, pattern, or full house to win! Different patterns offer different payouts.`,
-      tips: [
-        'Play multiple cards to increase your chances',
-        'Pay attention to the numbers being called',
-        'Look for games with fewer players for better odds',
-        'Set a budget and stick to it',
-        'Have fun and enjoy the social aspect!'
-      ],
-      history: `Bingo has been bringing people together for generations, and ${game.name} continues that tradition in the digital age.`
-    }
-  };
-
-  const defaults = defaultContent[game.category] || defaultContent.slots;
-
-  // Return actual game content from database if available, otherwise use defaults
-  return {
-    overview: game.gameOverview || defaults.overview,
-    howToPlay: game.howToPlay || defaults.howToPlay,
-    tips: (game.tipsAndStrategies && game.tipsAndStrategies.length > 0) ? game.tipsAndStrategies : defaults.tips,
-    history: game.gameHistory || defaults.history,
-  };
-}
+import { gamesData, gameCategories, featuredGames, popularGames, newGames } from '@/lib/games-data';
 
 // Home View Component
 function HomeView() {
-  const { setCurrentView, setCurrentGame, user, claimDailyBonus, canClaimBonus, games, gamesLoaded } = useGameStore();
+  const { games, gamesLoaded } = useGameStore();
   
   const [currentBanner, setCurrentBanner] = useState(0);
 
@@ -161,6 +86,16 @@ function HomeView() {
     count: games.filter(g => g.category === cat.id).length
   }));
 
+  const categoryToHref: Record<string, string> = {
+    slots: '/slots',
+    casino: '/casino',
+    poker: '/poker',
+    skill: '/skill-games',
+    bingo: '/bingo',
+    // Not routed explicitly; default to slots.
+    novoline: '/slots',
+  };
+
   return (
     <div className="space-y-8">
       {/* Hero Section */}
@@ -197,13 +132,15 @@ function HomeView() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
-                <Button 
-                  size="lg" 
+                <Button
+                  asChild
+                  size="lg"
                   className="bg-white text-black hover:bg-white/90 font-bold px-8"
-                  onClick={() => setCurrentView('slots')}
                 >
-                  {heroBanners[currentBanner].cta}
-                  <ChevronRight className="ml-2 h-5 w-5" />
+                  <Link href="/slots">
+                    {heroBanners[currentBanner].cta}
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </Link>
                 </Button>
               </motion.div>
             </div>
@@ -232,26 +169,31 @@ function HomeView() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">Game Categories</h2>
-          <Button variant="link" className="text-yellow-400" onClick={() => setCurrentView('slots')}>
+          <Button asChild variant="link" className="text-yellow-400">
+            <Link href="/slots">
             View All <ChevronRight className="h-4 w-4 ml-1" />
+            </Link>
           </Button>
         </div>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
           {categoryCounts.map((category, i) => (
-            <motion.button
+            <motion.div
               key={category.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ scale: 1.05, y: -5 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setCurrentView(category.id as any)}
-              className="p-4 rounded-xl bg-gradient-to-br from-purple-800/50 to-purple-900/50 border border-purple-700/30 hover:border-yellow-500/50 transition-all"
             >
-              <div className="text-3xl mb-2">{category.icon}</div>
-              <p className="text-sm font-medium text-white">{category.name}</p>
-              <p className="text-xs text-purple-400">{category.count} games</p>
-            </motion.button>
+              <Link
+                href={categoryToHref[category.id] || '/slots'}
+                className="p-4 rounded-xl bg-gradient-to-br from-purple-800/50 to-purple-900/50 border border-purple-700/30 hover:border-yellow-500/50 transition-all block"
+              >
+                <div className="text-3xl mb-2">{category.icon}</div>
+                <p className="text-sm font-medium text-white">{category.name}</p>
+                <p className="text-xs text-purple-400">{category.count} games</p>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -263,8 +205,10 @@ function HomeView() {
             <TrendingUp className="h-6 w-6 text-pink-400" />
             <h2 className="text-2xl font-bold text-white">Most Popular</h2>
           </div>
-          <Button variant="link" className="text-yellow-400" onClick={() => setCurrentView('slots')}>
+          <Button asChild variant="link" className="text-yellow-400">
+            <Link href="/slots">
             See All <ChevronRight className="h-4 w-4 ml-1" />
+            </Link>
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -281,8 +225,10 @@ function HomeView() {
             <Sparkles className="h-6 w-6 text-yellow-400" />
             <h2 className="text-2xl font-bold text-white">Featured Games</h2>
           </div>
-          <Button variant="link" className="text-yellow-400" onClick={() => setCurrentView('slots')}>
+          <Button asChild variant="link" className="text-yellow-400">
+            <Link href="/slots">
             See All <ChevronRight className="h-4 w-4 ml-1" />
+            </Link>
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -299,8 +245,10 @@ function HomeView() {
             <Zap className="h-6 w-6 text-green-400" />
             <h2 className="text-2xl font-bold text-white">New Releases</h2>
           </div>
-          <Button variant="link" className="text-yellow-400" onClick={() => setCurrentView('slots')}>
+          <Button asChild variant="link" className="text-yellow-400">
+            <Link href="/slots">
             See All <ChevronRight className="h-4 w-4 ml-1" />
+            </Link>
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -468,501 +416,6 @@ function GamesListView({ category }: { category: string }) {
           <p className="text-purple-400">No games found matching your criteria.</p>
         </div>
       )}
-    </div>
-  );
-}
-
-// Game Blog View Component
-function GameBlogView() {
-  const { currentGame, setCurrentGame, favorites, toggleFavorite, user, games } = useGameStore();
-  const [downloading, setDownloading] = useState(false);
-  const [downloaded, setDownloaded] = useState(false);
-
-  if (!currentGame) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-purple-400">No game selected</p>
-      </div>
-    );
-  }
-
-  const blogContent = getGameBlogContent(currentGame);
-  const isFavorite = favorites.includes(currentGame.id);
-
-  const handleDownload = () => {
-    // If game has a download link, open it in a new tab
-    if (currentGame.downloadLink) {
-      window.open(currentGame.downloadLink, '_blank');
-      setDownloaded(true);
-    } else {
-      // No download link available - show message
-      setDownloading(true);
-      setTimeout(() => {
-        setDownloading(false);
-        setDownloaded(true);
-      }, 2000);
-    }
-  };
-
-  // Get related games (same category, excluding current)
-  const relatedGames = games
-    .filter(g => g.category === currentGame.category && g.id !== currentGame.id)
-    .slice(0, 4);
-
-  return (
-    <div className="space-y-8">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        className="text-purple-300 hover:text-white"
-        onClick={() => setCurrentGame(null)}
-      >
-        <ChevronRight className="h-4 w-4 mr-1 rotate-180" />
-        Back to Games
-      </Button>
-
-      {/* Hero Banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative rounded-2xl overflow-hidden"
-      >
-        <div className="aspect-[21/9] relative">
-          <img
-            src={currentGame.bannerImage || currentGame.thumbnail}
-            alt={currentGame.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-purple-950 via-purple-950/50 to-transparent" />
-        </div>
-        
-        {/* Game Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {currentGame.isNew && (
-                  <Badge className="bg-green-500 text-white">NEW</Badge>
-                )}
-                {currentGame.isFeatured && (
-                  <Badge className="bg-yellow-500 text-black">FEATURED</Badge>
-                )}
-                {currentGame.isPopular && (
-                  <Badge className="bg-pink-500 text-white">POPULAR</Badge>
-                )}
-                <Badge variant="outline" className="border-purple-500 text-purple-300">
-                  {currentGame.provider}
-                </Badge>
-              </div>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{currentGame.name}</h1>
-              <p className="text-purple-300 text-lg">{currentGame.description}</p>
-            </div>
-            
-            {/* Download Button */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Button
-                size="lg"
-                onClick={handleDownload}
-                disabled={downloading}
-                className={`font-bold px-8 py-6 text-lg ${
-                  downloaded 
-                    ? 'bg-green-500 hover:bg-green-500 text-white' 
-                    : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black'
-                }`}
-              >
-                {downloading ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    >
-                      <Settings className="h-6 w-6 mr-2" />
-                    </motion.div>
-                    Downloading...
-                  </>
-                ) : downloaded ? (
-                  <>
-                    <Check className="h-6 w-6 mr-2" />
-                    Downloaded
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-6 w-6 mr-2" />
-                    Download Game
-                  </>
-                )}
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Game Stats */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {currentGame.rtp && (
-                  <div className="text-center p-4 bg-purple-800/30 rounded-lg">
-                    <p className="text-2xl font-bold text-green-400">{currentGame.rtp}%</p>
-                    <p className="text-sm text-purple-400">RTP</p>
-                  </div>
-                )}
-                <div className="text-center p-4 bg-purple-800/30 rounded-lg">
-                  <p className="text-2xl font-bold text-yellow-400">{currentGame.minBet}</p>
-                  <p className="text-sm text-purple-400">Min Bet</p>
-                </div>
-                <div className="text-center p-4 bg-purple-800/30 rounded-lg">
-                  <p className="text-2xl font-bold text-yellow-400">{currentGame.maxBet.toLocaleString()}</p>
-                  <p className="text-sm text-purple-400">Max Bet</p>
-                </div>
-                {currentGame.volatility && (
-                  <div className="text-center p-4 bg-purple-800/30 rounded-lg">
-                    <p className="text-2xl font-bold text-white capitalize">{currentGame.volatility}</p>
-                    <p className="text-sm text-purple-400">Volatility</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Overview Section */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Info className="h-5 w-5 text-yellow-400" />
-                Game Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-purple-200 leading-relaxed text-lg">
-                {blogContent.overview}
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* How to Play Section */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Gamepad2 className="h-5 w-5 text-yellow-400" />
-                How to Play
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-purple-200 leading-relaxed">
-                {blogContent.howToPlay}
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Tips Section */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Target className="h-5 w-5 text-yellow-400" />
-                Tips & Strategies
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {blogContent.tips.map((tip, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-start gap-3"
-                  >
-                    <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="h-4 w-4 text-yellow-400" />
-                    </div>
-                    <span className="text-purple-200">{tip}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* History Section */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Clock className="h-5 w-5 text-yellow-400" />
-                Game History
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-purple-200 leading-relaxed">
-                {blogContent.history}
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Features Section */}
-          {currentGame.features && currentGame.features.length > 0 && (
-            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-yellow-400" />
-                  Game Features
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-3">
-                  {currentGame.features.map((feature, i) => (
-                    <Badge 
-                      key={i} 
-                      className="px-4 py-2 bg-gradient-to-r from-purple-600/50 to-purple-800/50 border border-purple-500/30 text-white text-sm"
-                    >
-                      {feature}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Game Specifications */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-            <CardHeader>
-              <CardTitle className="text-white">Game Specifications</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                {currentGame.reels && (
-                  <div className="flex justify-between py-2 border-b border-purple-700/30">
-                    <span className="text-purple-400">Reels</span>
-                    <span className="text-white font-medium">{currentGame.reels}</span>
-                  </div>
-                )}
-                {currentGame.paylines && (
-                  <div className="flex justify-between py-2 border-b border-purple-700/30">
-                    <span className="text-purple-400">Paylines</span>
-                    <span className="text-white font-medium">{currentGame.paylines}</span>
-                  </div>
-                )}
-                {currentGame.jackpot && (
-                  <div className="flex justify-between py-2 border-b border-purple-700/30">
-                    <span className="text-purple-400">Max Jackpot</span>
-                    <span className="text-yellow-400 font-medium">{currentGame.jackpot.toLocaleString()}</span>
-                  </div>
-                )}
-                <div className="flex justify-between py-2 border-b border-purple-700/30">
-                  <span className="text-purple-400">Category</span>
-                  <span className="text-white font-medium capitalize">{currentGame.category}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-purple-700/30">
-                  <span className="text-purple-400">Provider</span>
-                  <span className="text-white font-medium">{currentGame.provider}</span>
-                </div>
-                {currentGame.volatility && (
-                  <div className="flex justify-between py-2 border-b border-purple-700/30">
-                    <span className="text-purple-400">Volatility</span>
-                    <span className="text-white font-medium capitalize">{currentGame.volatility}</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* How to Download and Install Section */}
-          {currentGame.howToDownloadAndInstall && (
-            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Download className="h-5 w-5 text-yellow-400" />
-                  How to Download and Install
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-purple-200 leading-relaxed whitespace-pre-line">
-                  {currentGame.howToDownloadAndInstall}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* How to Create Account Section */}
-          {currentGame.howToCreateAccount && (
-            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Users className="h-5 w-5 text-yellow-400" />
-                  How to Create Account
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-purple-200 leading-relaxed whitespace-pre-line">
-                  {currentGame.howToCreateAccount}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* FAQs Section */}
-          {currentGame.faqs && currentGame.faqs.length > 0 && (
-            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-yellow-400" />
-                  Frequently Asked Questions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {currentGame.faqs.map((faq, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-4 bg-purple-800/30 rounded-lg"
-                    >
-                      <h4 className="font-semibold text-yellow-400 mb-2">{faq.question}</h4>
-                      <p className="text-purple-200 text-sm">{faq.answer}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Conclusion Section */}
-          {currentGame.conclusion && (
-            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Award className="h-5 w-5 text-yellow-400" />
-                  Conclusion
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-purple-200 leading-relaxed">
-                  {currentGame.conclusion}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30 sticky top-24">
-            <CardHeader>
-              <CardTitle className="text-white">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold"
-                onClick={handleDownload}
-                disabled={downloading}
-              >
-                {downloading ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="mr-2"
-                    >
-                      <Settings className="h-5 w-5" />
-                    </motion.div>
-                    Downloading...
-                  </>
-                ) : downloaded ? (
-                  <>
-                    <Check className="h-5 w-5 mr-2" />
-                    Downloaded
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-5 w-5 mr-2" />
-                    Download Now
-                  </>
-                )}
-              </Button>
-              
-              <Button
-                variant="outline"
-                className={`w-full ${isFavorite ? 'border-red-500 text-red-400' : 'border-purple-600 text-purple-300'}`}
-                onClick={() => toggleFavorite(currentGame.id)}
-              >
-                <Heart className="h-5 w-5 mr-2" fill={isFavorite ? 'currentColor' : 'none'} />
-                {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="w-full border-purple-600 text-purple-300"
-              >
-                <Share2 className="h-5 w-5 mr-2" />
-                Share Game
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Game Info Card */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-            <CardHeader>
-              <CardTitle className="text-white text-sm">Game Info</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-purple-300">
-                <Eye className="h-4 w-4" />
-                <span>Views: {Math.floor(Math.random() * 10000).toLocaleString()}</span>
-              </div>
-              <div className="flex items-center gap-2 text-purple-300">
-                <ThumbsUp className="h-4 w-4" />
-                <span>Likes: {Math.floor(Math.random() * 1000).toLocaleString()}</span>
-              </div>
-              <div className="flex items-center gap-2 text-purple-300">
-                <Calendar className="h-4 w-4" />
-                <span>Added: {new Date().toLocaleDateString()}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Related Games */}
-          {relatedGames.length > 0 && (
-            <Card className="bg-gradient-to-br from-purple-900/50 to-purple-950/50 border-purple-700/30">
-              <CardHeader>
-                <CardTitle className="text-white">Related Games</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {relatedGames.map((game) => (
-                  <motion.div
-                    key={game.id}
-                    whileHover={{ x: 5 }}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-purple-800/20 hover:bg-purple-800/40 cursor-pointer transition-colors"
-                    onClick={() => {
-                      setCurrentGame(game);
-                      setDownloaded(false);
-                    }}
-                  >
-                    <img
-                      src={game.thumbnail}
-                      alt={game.name}
-                      className="w-16 h-12 object-cover rounded"
-                    />
-                    <div>
-                      <p className="text-white font-medium text-sm">{game.name}</p>
-                      <p className="text-purple-400 text-xs">{game.provider}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
@@ -1285,7 +738,7 @@ function ProfileView() {
 
 // Main Page Component
 export default function Page() {
-  const { currentView, fetchGames, gamesLoaded, currentGame } = useGameStore();
+  const { currentView, fetchGames, gamesLoaded, currentGame, games } = useGameStore();
 
   // Fetch games from database on mount (for all views)
   useEffect(() => {
@@ -1315,7 +768,17 @@ export default function Page() {
       case 'profile':
         return <ProfileView />;
       case 'game':
-        return <GameBlogView />;
+        if (!currentGame) {
+          return (
+            <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+              <p className="text-purple-300">Open a game from the catalog for a direct link.</p>
+              <Button asChild>
+                <Link href="/slots">Browse games</Link>
+              </Button>
+            </div>
+          );
+        }
+        return <GameBlogView game={currentGame} games={games} />;
       default:
         return <HomeView />;
     }

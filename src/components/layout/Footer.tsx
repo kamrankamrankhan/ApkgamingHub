@@ -10,12 +10,12 @@ import { Separator } from '@/components/ui/separator';
 
 const footerLinks = {
   games: [
-    { label: 'Slots', href: '#' },
-    { label: 'Casino Games', href: '#' },
-    { label: 'Poker', href: '#' },
-    { label: 'Skill Games', href: '#' },
-    { label: 'Bingo', href: '#' },
-    { label: 'Novoline', href: '#' }
+    { label: 'Slots', href: '/slots' },
+    { label: 'Casino Games', href: '/casino' },
+    { label: 'Poker', href: '/poker' },
+    { label: 'Skill Games', href: '/skill-games' },
+    { label: 'Bingo', href: '/bingo' },
+    { label: 'Novoline', href: '/slots' }
   ],
   legal: [
     { label: 'Terms of Service', href: '#' },

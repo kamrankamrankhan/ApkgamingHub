@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Menu, X, User, Gift, Crown, ChevronDown, Bell, 
@@ -40,14 +41,27 @@ const vipColors = {
 };
 
 export function Header() {
-  const { user, currentView, setCurrentView, searchQuery, setSearchQuery, claimDailyBonus, canClaimBonus } = useGameStore();
+  const { user, searchQuery, setSearchQuery, claimDailyBonus, canClaimBonus } = useGameStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
-  const handleNavClick = (view: ViewType) => {
-    setCurrentView(view);
-    setMobileMenuOpen(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const viewToHref: Partial<Record<ViewType, string>> = {
+    home: '/',
+    slots: '/slots',
+    casino: '/casino',
+    poker: '/poker',
+    skill: '/skill-games',
+    bingo: '/bingo',
+  };
+
+  const isNavItemActive = (view: ViewType) => {
+    const href = viewToHref[view];
+    if (!href) return false;
+    return view === 'home' ? pathname === '/' : pathname === href;
   };
 
   const handleClaimBonus = () => {
@@ -59,9 +73,9 @@ export function Header() {
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    // Navigate to slots when searching to show results
-    if (value && currentView === 'home') {
-      setCurrentView('slots');
+    // Navigate to slots when searching from the home page
+    if (value && pathname === '/') {
+      router.push('/slots');
     }
   };
 
@@ -76,8 +90,8 @@ export function Header() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="#" className="hover:text-yellow-400 transition-colors">Help</Link>
-          <Link href="#" className="hover:text-yellow-400 transition-colors">Contact</Link>
+          <Link href="/help" className="hover:text-yellow-400 transition-colors">Help</Link>
+          <Link href="/contact" className="hover:text-yellow-400 transition-colors">Contact</Link>
         </div>
       </div>
 
@@ -85,41 +99,43 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <motion.div 
-            className="flex items-center gap-2 cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            onClick={() => handleNavClick('home')}
-          >
-            <img
-              src="/logo.png"
-              alt="APKgaminghub"
-              className="h-10 w-10 object-contain"
-            />
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                APKgaminghub
-              </h1>
-              <p className="text-[10px] text-purple-300 -mt-1">Free Game Downloads</p>
-            </div>
-          </motion.div>
+          <Link href="/" className="flex items-center gap-2 cursor-pointer">
+            <motion.div whileHover={{ scale: 1.02 }}>
+              <img
+                src="/logo.png"
+                alt="APKgaminghub"
+                className="h-10 w-10 object-contain"
+              />
+              <div className="hidden sm:block">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">
+                  APKgaminghub
+                </h1>
+                <p className="text-[10px] text-purple-300 -mt-1">Free Game Downloads</p>
+              </div>
+            </motion.div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => (
-              <motion.button
+              <motion.div
                 key={item.view}
-                onClick={() => handleNavClick(item.view)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                  currentView === item.view
-                    ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 border border-yellow-500/30'
-                    : 'text-purple-200 hover:text-white hover:bg-white/5'
-                }`}
+                className="transition-all"
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <span>{item.icon}</span>
-                {item.label}
-              </motion.button>
+                <Link
+                  href={viewToHref[item.view] || '/'}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                    isNavItemActive(item.view)
+                      ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 border border-yellow-500/30'
+                      : 'text-purple-200 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span>{item.icon}</span>
+                  {item.label}
+                </Link>
+              </motion.div>
             ))}
           </nav>
 
@@ -240,17 +256,19 @@ export function Header() {
                     <DropdownMenuSeparator className="bg-purple-700" />
                     <DropdownMenuItem 
                       className="text-purple-200 hover:text-white hover:bg-purple-800 cursor-pointer"
-                      onClick={() => setCurrentView('profile')}
                     >
-                      <User className="mr-2 h-4 w-4" />
-                      My Profile
+                      <Link href="/profile" className="flex items-center w-full">
+                        <User className="mr-2 h-4 w-4" />
+                        My Profile
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-purple-200 hover:text-white hover:bg-purple-800 cursor-pointer"
-                      onClick={() => setCurrentView('vip')}
                     >
-                      <Crown className="mr-2 h-4 w-4" />
-                      VIP Status
+                      <Link href="/vip" className="flex items-center w-full">
+                        <Crown className="mr-2 h-4 w-4" />
+                        VIP Status
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-purple-200 hover:text-white hover:bg-purple-800 cursor-pointer">
                       <Heart className="mr-2 h-4 w-4" />
@@ -328,18 +346,19 @@ export function Header() {
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {navItems.map((item) => (
-                <button
+                <Link
                   key={item.view}
-                  onClick={() => handleNavClick(item.view)}
+                  href={viewToHref[item.view] || '/'}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={`w-full px-4 py-3 rounded-lg text-left flex items-center gap-3 ${
-                    currentView === item.view
+                    isNavItemActive(item.view)
                       ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400'
                       : 'text-purple-200 hover:bg-white/5'
                   }`}
                 >
                   <span className="text-xl">{item.icon}</span>
                   {item.label}
-                </button>
+                </Link>
               ))}
               
               {/* Mobile Balance */}
